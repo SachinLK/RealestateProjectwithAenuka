@@ -14,13 +14,17 @@ import SellWithUsPage from './pages/SellWithUsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import ScrollToTop from './components/ScrollToTop';
+import { AuthProvider } from './context/AuthContext';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 
 export default function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
+    <AuthProvider>
+      <Router>
+        <ScrollToTop />
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<ListingsPage />} />
@@ -30,10 +34,13 @@ export default function App() {
             <Route path="/sell" element={<SellWithUsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
           </Routes>
         </main>
         <Footer />
       </div>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }

@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { PROPERTIES } from '../data/mockData';
 import PropertyCard from '../components/PropertyCard';
-import { ListingType } from '../types';
 import { ChevronDown, Search } from 'lucide-react';
 
 export default function ListingsPage() {
-  const [filterType, setFilterType] = useState<ListingType | 'all'>('all');
+  const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [listings, setListings] = useState<any[]>([]);
 
-  const filteredProperties = PROPERTIES.filter((p) => {
-    const matchesType = filterType === 'all' || p.type === filterType;
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.location.toLowerCase().includes(searchQuery.toLowerCase());
+  useEffect(() => {
+    fetch('http://localhost:5000/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          setListings(data.data);
+        }
+      })
+      .catch(err => console.error("Error fetching listings:", err));
+  }, []);
+
+  const filteredProperties = listings.filter((p) => {
+    const matchesType = filterType === 'all' || p.type.toLowerCase() === filterType.toLowerCase();
+    const matchesSearch = p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          p.address?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   });
 
@@ -78,8 +88,8 @@ export default function ListingsPage() {
           </div>
 
           <div className="flex items-center gap-2 cursor-pointer group">
-            <span className="text-[10px] uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">Price Range</span>
-            <ChevronDown size={14} className="text-white/40" />
+            <span className="text-[10px] uppercase tracking-widest text-brand-dark/40 group-hover:text-brand-dark transition-colors">Price Range</span>
+            <ChevronDown size={14} className="text-brand-dark/40" />
           </div>
         </div>
       </header>
@@ -87,7 +97,7 @@ export default function ListingsPage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20">
         {filteredProperties.map((property, idx) => (
           <motion.div
-            key={property.id}
+            key={property._id}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
@@ -98,7 +108,7 @@ export default function ListingsPage() {
       </div>
 
       {filteredProperties.length === 0 && (
-        <div className="text-center py-20 text-white/20 uppercase tracking-[0.3em] font-light">
+        <div className="text-center py-20 text-brand-dark/40 uppercase tracking-[0.3em] font-light">
           No listings found matching your criteria.
         </div>
       )}
